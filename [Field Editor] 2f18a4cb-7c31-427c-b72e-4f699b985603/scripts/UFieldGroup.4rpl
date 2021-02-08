@@ -1,0 +1,66 @@
+# --UFieldGroup-- 2/8/2021 12:19:17 AM
+$radius_X:6
+$radius_Z:6
+
+#///
+
+<-radius_X <-lastRadius_X neq <-radius_Z <-lastRadius_Z neq or if
+    <-radius_X <-lastRadius_X <-G_lLastField DebugAllSp
+    @ApplyFieldRect
+    @ResizeOutline
+endif
+
+<-radius_X ->lastRadius_X
+<-radius_Z ->lastRadius_Z
+
+#///
+
+:awake
+    --G_lLastField
+    @ApplyFieldRect
+    @ResizeOutline
+:destroyed
+    @ClearLastFieldRect
+
+
+:ClearLastFieldRect
+    -?G_lLastField if
+        <-G_lLastField[0] <-G_lLastField[1] <-G_lLastField[2] <-G_lLastField[3] <-G_lLastField[4] neg <-G_lLastField[5] <-G_lLastField[6] <-G_lLastField[7] SetFieldRect
+
+        --G_lLastField
+    endif
+:ApplyFieldRect
+    @ClearLastFieldRect
+
+    Self GetUnitPosition ->AFR_vUnitPos
+    CreateList ->AFR_lFieldRect
+
+    <-radius_Z 2 mul 1 add ->AFR_iHeight
+    <-radius_X 2 mul 1 add ->AFR_iWidth
+    
+
+    <-AFR_iHeight 0 do
+        <-AFR_iWidth 0 do
+            <-AFR_lFieldRect 1 1 V2 AppendToList
+        loop
+    loop
+
+    CreateList ->G_lLastField
+    ClearStack TRUE 1 0 1000 <-AFR_iWidth <-AFR_lFieldRect <-AFR_vUnitPos.z <-AFR_vUnitPos.x <-G_lLastField AppendStackToList
+    <-G_lLastField[0] <-G_lLastField[1] <-G_lLastField[2] <-G_lLastField[3] <-G_lLastField[4] <-G_lLastField[5] <-G_lLastField[6] <-G_lLastField[7] SetFieldRect
+:ResizeOutline
+    #Radius 1: 3
+    #Radius 2: 5
+    #Radius 3: 7
+    Self "Outline Left" 0.25 0.25 <-radius_Z 2 mul 1 add V3 SetObjScale
+    Self "Outline Right" 0.25 0.25 <-radius_Z 2 mul 1 add V3 SetObjScale
+    Self "Outline Top" 0.25 0.25 <-radius_X 2 mul 1 add V3 SetObjScale
+    Self "Outline Bottom" 0.25 0.25 <-radius_X 2 mul 1 add V3 SetObjScale
+
+    #Radius 1: 1.5
+    #Radius 2: 2.5
+    #Radius 3: 3.5
+    Self "Outline Left" <-radius_X 0.5 add neg 0 0 V3 FALSE SetObjPosition
+    Self "Outline Right" <-radius_X 0.5 add 0 0 V3 FALSE SetObjPosition
+    Self "Outline Top" 0 0 <-radius_Z 0.5 add V3 FALSE SetObjPosition
+    Self "Outline Bottom" 0 0 <-radius_Z 0.5 add neg V3 FALSE SetObjPosition

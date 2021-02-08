@@ -1,0 +1,45 @@
+# --UFieldViewer-- 2/7/2021 11:59:25 PM
+
+GetTimer0 eq0 if
+    @RefreshRasterView
+endif
+
+:once
+    @awake
+:awake
+    GetEditMode if
+        TRUE ShowRaster
+        @RefreshRasterView
+    else
+        FALSE ShowRaster
+        Self TRUE FALSE TRUE DestroyUnit
+    endif
+:BuildComplete
+    #Default UI settings
+    once
+        Self 0 2 SetUnitUIState
+        Self 1 2 SetUnitUIState
+        Self 2 2 SetUnitUIState
+    endonce
+
+
+:RefreshRasterView
+    Self 0 GetUnitUIOptions Self 0 GetUnitUIState GetListElement ->UI_RadiusX
+    Self 1 GetUnitUIOptions Self 1 GetUnitUIState GetListElement ->UI_RadiusZ
+    Self 2 GetUnitUIOptions Self 2 GetUnitUIState GetListElement ->UI_iUpdateInterval
+    Self GetUnitPosition ->G_vPos
+    Self GetMapSize ->RRV_iMapSizeZ ->RRV_iMapSizeX 
+
+    <-UI_iUpdateInterval SetTimer0
+    0 0 0 1 V4 ClearRaster
+
+    <-UI_RadiusZ "MAX" EndsWith if <-RRV_iMapSizeZ 0 else <-G_vPos.z <-UI_RadiusZ add 1 add <-G_vPos.z <-UI_RadiusZ sub endif do
+		<-UI_RadiusX "MAX" EndsWith if <-RRV_iMapSizeX 0 else <-G_vPos.x <-UI_RadiusX add 1 add <-G_vPos.x <-UI_RadiusX sub endif do
+            I J false GetFieldCell ->RRV_vField
+            <-RRV_vField.0 neq0 <-RRV_vField.1 neq0 or if
+                I J 1 0 0 1 V4 SetRaster
+            else
+                I J 1 1 1 0.15 V4 SetRaster
+            endif
+        loop
+    loop
